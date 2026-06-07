@@ -1,38 +1,21 @@
-import SportsCard from "./SportsCard";
+import SportCard from "./SportCard";
 
-function SportsList({ sports, onViewSlots }) {
-  if (sports.length === 0) {
-    return (
-      <section className="sports-section">
-        <div className="section-heading">
-          <p className="section-kicker">Sports</p>
-          <h2>No sports listed yet</h2>
-        </div>
-      </section>
-    );
-  }
-
+function SportsList({ sports, selectedSportId, onSelectSport }) {
   return (
-    <section className="sports-section">
-      <div className="section-heading">
-        <p className="section-kicker">Available sports</p>
-        <h2>Pick a game and check what is open</h2>
-        <p>
-          These sports are coming from your Express API, not hardcoded inside
-          the React component.
-        </p>
-      </div>
+    <aside className="sports-panel">
+      <h2>Choose Sport</h2>
 
-      <div className="sports-grid">
+      <div className="sports-list">
         {sports.map((sport) => (
-          <SportsCard
+          <SportCard
             key={sport.id}
             sport={sport}
-            onViewSlots={onViewSlots}
+            isActive={selectedSportId === sport.id}
+            onClick={() => onSelectSport(sport.id)}
           />
         ))}
       </div>
-    </section>
+    </aside>
   );
 }
 
