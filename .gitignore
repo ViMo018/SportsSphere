@@ -1,11 +1,11 @@
 # dependencies
 node_modules/
 
-# build files
+# frontend build
 dist/
 build/
 
-# environment variables
+# environment files
 .env
 .env.local
 .env.development
@@ -14,16 +14,12 @@ build/
 # logs
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 
-# editor
+# editor files
 .vscode/
 .idea/
 
 # OS files
 .DS_Store
 Thumbs.db
-
-# cache
-.cache/
