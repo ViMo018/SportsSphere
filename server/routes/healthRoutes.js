@@ -2,10 +2,10 @@ const express = require("express");
 
 const router = express.Router();
 
-router.get("/health", (req, res) => {
-  res.status(200).json({
+router.get("/", (req, res) => {
+  res.json({
     success: true,
-    message: "SportsSphere backend is healthy",
+    message: "Server is healthy",
   });
 });
 
