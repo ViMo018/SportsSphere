@@ -97,7 +97,16 @@ async function loginUser(req, res) {
   }
 }
 
+async function getMe(req, res) {
+  res.json({
+    success: true,
+    message: "User profile fetched successfully",
+    data: formatUser(req.user),
+  });
+}
+
 module.exports = {
   registerUser,
   loginUser,
+  getMe,
 };
