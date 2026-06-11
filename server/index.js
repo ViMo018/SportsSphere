@@ -3,6 +3,10 @@ const cors = require("cors");
 
 const sportRoutes = require("./routes/sportRoutes");
 const healthRoutes = require("./routes/healthRoutes");
+const {
+  notFound,
+  errorHandler,
+} = require("./middleware/errorMiddleware");
 
 const app = express();
 const PORT = 5000;
@@ -16,6 +20,9 @@ app.get("/", (req, res) => {
 
 app.use("/api/health", healthRoutes);
 app.use("/api/sports", sportRoutes);
+
+app.use(notFound);
+app.use(errorHandler);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
