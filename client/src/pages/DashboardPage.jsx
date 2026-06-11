@@ -4,6 +4,7 @@ import api from "../services/api";
 import Header from "../components/Header";
 import SportsList from "../components/SportsList";
 import SportDetails from "../components/SportDetails";
+import Toast from "../components/Toast";
 
 function DashboardPage() {
   const { sportId } = useParams();
@@ -14,6 +15,14 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState("");
+  const [toast, setToast] = useState(null);
+
+  function showToast(message, type = "success") {
+    setToast({
+      message,
+      type,
+    });
+  }
 
   async function fetchSports() {
     try {
@@ -46,6 +55,11 @@ function DashboardPage() {
   }
 
   async function handleBookSlot(slotId) {
+    if (!selectedSport) {
+      showToast("Please select a sport first", "error");
+      return;
+    }
+
     try {
       const res = await api.patch(
         `/api/sports/${selectedSport.id}/slots/${slotId}/book`
@@ -53,10 +67,13 @@ function DashboardPage() {
 
       setSelectedSport(res.data.data);
 
+      showToast(res.data.message || "Slot booked successfully", "success");
+
       // update left-side available slot count
       fetchSports();
     } catch (err) {
-      alert(err.response?.data?.message || "Booking failed");
+      const message = err.response?.data?.message || "Booking failed";
+      showToast(message, "error");
     }
   }
 
@@ -85,6 +102,18 @@ function DashboardPage() {
     }
   }, [sportId]);
 
+  useEffect(() => {
+    if (!toast) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 2500);
+
+    return () => clearTimeout(timer);
+  }, [toast]);
+
   if (loading) {
     return <div className="page-message">Loading SportsSphere...</div>;
   }
@@ -94,23 +123,27 @@ function DashboardPage() {
   }
 
   return (
-    <main className="app">
-      <Header sportsCount={sports.length} />
+    <>
+      <Toast toast={toast} onClose={() => setToast(null)} />
 
-      <section className="dashboard">
-        <SportsList
-          sports={sports}
-          selectedSportId={selectedSport?.id}
-          onSelectSport={handleSelectSport}
-        />
+      <main className="app">
+        <Header sportsCount={sports.length} />
 
-        <SportDetails
-          sport={selectedSport}
-          loading={detailLoading}
-          onBookSlot={handleBookSlot}
-        />
-      </section>
-    </main>
+        <section className="dashboard">
+          <SportsList
+            sports={sports}
+            selectedSportId={selectedSport?.id}
+            onSelectSport={handleSelectSport}
+          />
+
+          <SportDetails
+            sport={selectedSport}
+            loading={detailLoading}
+            onBookSlot={handleBookSlot}
+          />
+        </section>
+      </main>
+    </>
   );
 }
 
