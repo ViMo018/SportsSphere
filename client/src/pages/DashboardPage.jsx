@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import SportsList from "../components/SportsList";
 import SportDetails from "../components/SportDetails";
 import Toast from "../components/Toast";
-
+import Navbar from "../components/Navbar";
 function DashboardPage() {
   const { sportId } = useParams();
   const navigate = useNavigate();
@@ -122,29 +122,31 @@ function DashboardPage() {
     return <div className="page-message error">{error}</div>;
   }
 
-  return (
-    <>
-      <Toast toast={toast} onClose={() => setToast(null)} />
+return (
+  <>
+    <Toast toast={toast} onClose={() => setToast(null)} />
 
-      <main className="app">
-        <Header sportsCount={sports.length} />
+    <Navbar />
 
-        <section className="dashboard">
-          <SportsList
-            sports={sports}
-            selectedSportId={selectedSport?.id}
-            onSelectSport={handleSelectSport}
-          />
+    <main className="app">
+      <Header sportsCount={sports.length} />
 
-          <SportDetails
-            sport={selectedSport}
-            loading={detailLoading}
-            onBookSlot={handleBookSlot}
-          />
-        </section>
-      </main>
-    </>
-  );
+      <section className="dashboard">
+        <SportsList
+          sports={sports}
+          selectedSportId={selectedSport?.id}
+          onSelectSport={handleSelectSport}
+        />
+
+        <SportDetails
+          sport={selectedSport}
+          loading={detailLoading}
+          onBookSlot={handleBookSlot}
+        />
+      </section>
+    </main>
+  </>
+);
 }
 
 export default DashboardPage;

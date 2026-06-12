@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import api from "../services/api";
 import AuthForm from "../components/AuthForm";
 import Toast from "../components/Toast";
-
 function LoginPage() {
   const navigate = useNavigate();
 
