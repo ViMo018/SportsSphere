@@ -100,11 +100,11 @@ async function bookSlot(req, res, next) {
 
     await sport.save();
 
-    res.json({
-      success: true,
-      message: "Slot booked successfully",
-      data: formatSport(sport),
-    });
+res.json({
+  success: true,
+  message: `Slot booked successfully by ${req.user.name}`,
+  data: formatSport(sport),
+});
   } catch (error) {
     next(error);
   }
