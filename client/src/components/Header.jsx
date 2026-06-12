@@ -3,10 +3,10 @@ function Header({ sportsCount }) {
     <section className="hero">
       <div>
         <p className="eyebrow">IIITA Sports Booking</p>
-        <h1>SportsSphere</h1>
+        <h1>Book your next game.</h1>
         <p>
-          Browse sports, check available slots, and book your game without
-          fighting in ten WhatsApp groups.
+          Check live slot availability, pick your sport, and reserve your game
+          before the group chat turns into a courtroom.
         </p>
       </div>
 
