@@ -176,8 +176,42 @@ async function addSlotToSport(req, res) {
   }
 }
 
+function formatAdminBooking(booking) {
+  return {
+    id: booking._id,
+    userName: booking.user?.name || "Unknown user",
+    userEmail: booking.user?.email || "No email",
+    sportName: booking.sportName,
+    sportSlug: booking.sportSlug,
+    slotId: booking.slotId,
+    slotTime: booking.slotTime,
+    status: booking.status,
+    createdAt: booking.createdAt,
+  };
+}
+
+async function getAllBookings(req, res) {
+  try {
+    const bookings = await Booking.find()
+      .populate("user", "name email")
+      .sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: bookings.length,
+      data: bookings.map((booking) => formatAdminBooking(booking)),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong while fetching bookings",
+    });
+  }
+}
+
 module.exports = {
   getAdminStats,
   createSport,
   addSlotToSport,
+  getAllBookings,
 };

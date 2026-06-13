@@ -851,5 +851,68 @@ button {
     flex-direction: column;
   }
 }
+.admin-bookings-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-booking-row {
+  border: 1px solid #ded1bc;
+  border-radius: 20px;
+  background: #f8f0df;
+  padding: 16px;
+  display: grid;
+  grid-template-columns: 1.2fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+}
+
+.admin-booking-main {
+  display: grid;
+  gap: 6px;
+}
+
+.admin-booking-main strong {
+  color: #25291f;
+  font-size: 1.1rem;
+}
+
+.admin-booking-main p {
+  margin: 0;
+  color: #625f56;
+  font-weight: 800;
+}
+
+.admin-booking-user {
+  display: grid;
+  gap: 4px;
+}
+
+.admin-booking-user strong {
+  color: #25291f;
+}
+
+.admin-booking-user span {
+  color: #7c6749;
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.admin-booking-row a {
+  border-radius: 999px;
+  background: #25291f;
+  color: #fff8e8;
+  padding: 10px 14px;
+  text-decoration: none;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+@media (max-width: 850px) {
+  .admin-booking-row {
+    grid-template-columns: 1fr;
+    align-items: flex-start;
+  }
+}
 
   

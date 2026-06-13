@@ -11,7 +11,7 @@ function AdminDashboardPage() {
   const [toast, setToast] = useState(null);
   const [creating, setCreating] = useState(false);
   const [addingSlot, setAddingSlot] = useState(false);
-
+  const [adminBookings, setAdminBookings] = useState([]); 
   const [sportForm, setSportForm] = useState({
     slug: "",
     name: "",
@@ -47,23 +47,26 @@ function AdminDashboardPage() {
       };
     });
   }
+  async function fetchAdminBookings() {
+  const res = await api.get("/api/admin/bookings");
+  setAdminBookings(res.data.data);
+}
+async function fetchAdminData() {
+  try {
+    setLoading(true);
 
-  async function fetchAdminData() {
-    try {
-      setLoading(true);
-
-      await fetchAdminStats();
-      await fetchSports();
-    } catch (err) {
-      setToast({
-        type: "error",
-        message: err.response?.data?.message || "Unable to load admin dashboard",
-      });
-    } finally {
-      setLoading(false);
-    }
+    await fetchAdminStats();
+    await fetchSports();
+    await fetchAdminBookings();
+  } catch (err) {
+    setToast({
+      type: "error",
+      message: err.response?.data?.message || "Unable to load admin dashboard",
+    });
+  } finally {
+    setLoading(false);
   }
-
+}
   function handleSportFormChange(event) {
     const { name, value } = event.target;
 
@@ -402,6 +405,50 @@ function AdminDashboardPage() {
                 ))}
               </div>
             </section>
+            <section className="admin-panel">
+  <div className="admin-panel-head">
+    <div>
+      <p className="eyebrow">Booking Monitor</p>
+      <h2>All Bookings</h2>
+    </div>
+  </div>
+
+  {adminBookings.length === 0 ? (
+    <div className="panel-message">No bookings found yet.</div>
+  ) : (
+    <div className="admin-bookings-list">
+      {adminBookings.map((booking) => {
+        const isCancelled = booking.status === "cancelled";
+
+        return (
+          <article key={booking.id} className="admin-booking-row">
+            <div className="admin-booking-main">
+              <span
+                className={
+                  isCancelled
+                    ? "booking-status cancelled"
+                    : "booking-status"
+                }
+              >
+                {booking.status}
+              </span>
+
+              <strong>{booking.sportName}</strong>
+              <p>{booking.slotTime}</p>
+            </div>
+
+            <div className="admin-booking-user">
+              <strong>{booking.userName}</strong>
+              <span>{booking.userEmail}</span>
+            </div>
+
+            <Link to={`/sports/${booking.sportSlug}`}>View sport</Link>
+          </article>
+        );
+      })}
+    </div>
+  )}
+</section>
           </>
         )}
       </main>
