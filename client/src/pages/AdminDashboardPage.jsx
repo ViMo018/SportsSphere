@@ -3,15 +3,20 @@ import { Link } from "react-router-dom";
 import api from "../services/api";
 import Navbar from "../components/Navbar";
 import Toast from "../components/Toast";
+import AdminStats from "../components/admin/AdminStats";
+import AddSportForm from "../components/admin/AddSportForm";
+import AddSlotForm from "../components/admin/AddSlotForm";
+import AdminBookingsList from "../components/admin/AdminBookingsList";
 
 function AdminDashboardPage() {
   const [stats, setStats] = useState(null);
   const [sports, setSports] = useState([]);
+  const [adminBookings, setAdminBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [creating, setCreating] = useState(false);
   const [addingSlot, setAddingSlot] = useState(false);
-  const [adminBookings, setAdminBookings] = useState([]); 
+
   const [sportForm, setSportForm] = useState({
     slug: "",
     name: "",
@@ -47,26 +52,29 @@ function AdminDashboardPage() {
       };
     });
   }
-  async function fetchAdminBookings() {
-  const res = await api.get("/api/admin/bookings");
-  setAdminBookings(res.data.data);
-}
-async function fetchAdminData() {
-  try {
-    setLoading(true);
 
-    await fetchAdminStats();
-    await fetchSports();
-    await fetchAdminBookings();
-  } catch (err) {
-    setToast({
-      type: "error",
-      message: err.response?.data?.message || "Unable to load admin dashboard",
-    });
-  } finally {
-    setLoading(false);
+  async function fetchAdminBookings() {
+    const res = await api.get("/api/admin/bookings");
+    setAdminBookings(res.data.data);
   }
-}
+
+  async function fetchAdminData() {
+    try {
+      setLoading(true);
+
+      await fetchAdminStats();
+      await fetchSports();
+      await fetchAdminBookings();
+    } catch (err) {
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to load admin dashboard",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function handleSportFormChange(event) {
     const { name, value } = event.target;
 
@@ -207,248 +215,24 @@ async function fetchAdminData() {
           </section>
         ) : (
           <>
-            <section className="stats-grid">
-              <article className="stat-card">
-                <span>Total Users</span>
-                <strong>{stats.totalUsers}</strong>
-              </article>
+            <AdminStats stats={stats} />
 
-              <article className="stat-card">
-                <span>Total Sports</span>
-                <strong>{stats.totalSports}</strong>
-              </article>
+            <AddSportForm
+              sportForm={sportForm}
+              onSportFormChange={handleSportFormChange}
+              onCreateSport={handleCreateSport}
+              creating={creating}
+            />
 
-              <article className="stat-card">
-                <span>Total Bookings</span>
-                <strong>{stats.totalBookings}</strong>
-              </article>
+            <AddSlotForm
+              sports={sports}
+              slotForm={slotForm}
+              onSlotFormChange={handleSlotFormChange}
+              onAddSlot={handleAddSlot}
+              addingSlot={addingSlot}
+            />
 
-              <article className="stat-card">
-                <span>Active Bookings</span>
-                <strong>{stats.activeBookings}</strong>
-              </article>
-
-              <article className="stat-card">
-                <span>Cancelled Bookings</span>
-                <strong>{stats.cancelledBookings}</strong>
-              </article>
-            </section>
-
-            <section className="admin-panel">
-              <div className="admin-panel-head">
-                <div>
-                  <p className="eyebrow">Sports Management</p>
-                  <h2>Add New Sport</h2>
-                </div>
-              </div>
-
-              <form className="admin-form" onSubmit={handleCreateSport}>
-                <label>
-                  <span>Slug</span>
-                  <input
-                    type="text"
-                    name="slug"
-                    value={sportForm.slug}
-                    onChange={handleSportFormChange}
-                    placeholder="squash"
-                  />
-                </label>
-
-                <label>
-                  <span>Name</span>
-                  <input
-                    type="text"
-                    name="name"
-                    value={sportForm.name}
-                    onChange={handleSportFormChange}
-                    placeholder="Squash"
-                  />
-                </label>
-
-                <label>
-                  <span>Icon</span>
-                  <input
-                    type="text"
-                    name="icon"
-                    value={sportForm.icon}
-                    onChange={handleSportFormChange}
-                    placeholder="🎾"
-                  />
-                </label>
-
-                <label>
-                  <span>Venue</span>
-                  <input
-                    type="text"
-                    name="venue"
-                    value={sportForm.venue}
-                    onChange={handleSportFormChange}
-                    placeholder="Indoor Court 2"
-                  />
-                </label>
-
-                <label>
-                  <span>Players Per Team</span>
-                  <input
-                    type="number"
-                    name="playersPerTeam"
-                    value={sportForm.playersPerTeam}
-                    onChange={handleSportFormChange}
-                    placeholder="1"
-                  />
-                </label>
-
-                <label>
-                  <span>Difficulty</span>
-                  <input
-                    type="text"
-                    name="difficulty"
-                    value={sportForm.difficulty}
-                    onChange={handleSportFormChange}
-                    placeholder="Medium"
-                  />
-                </label>
-
-                <label className="admin-form-wide">
-                  <span>Description</span>
-                  <textarea
-                    name="description"
-                    value={sportForm.description}
-                    onChange={handleSportFormChange}
-                    placeholder="Book squash slots for quick indoor matches."
-                    rows="4"
-                  />
-                </label>
-
-                <button type="submit" disabled={creating}>
-                  {creating ? "Creating..." : "Create Sport"}
-                </button>
-              </form>
-            </section>
-
-            <section className="admin-panel">
-              <div className="admin-panel-head">
-                <div>
-                  <p className="eyebrow">Slot Management</p>
-                  <h2>Add Slot to Sport</h2>
-                </div>
-              </div>
-
-              <form className="admin-form" onSubmit={handleAddSlot}>
-                <label>
-                  <span>Sport</span>
-                  <select
-                    name="sportSlug"
-                    value={slotForm.sportSlug}
-                    onChange={handleSlotFormChange}
-                  >
-                    {sports.map((sport) => (
-                      <option key={sport.id} value={sport.id}>
-                        {sport.name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label>
-                  <span>Slot ID</span>
-                  <input
-                    type="text"
-                    name="slotId"
-                    value={slotForm.slotId}
-                    onChange={handleSlotFormChange}
-                    placeholder="c5"
-                  />
-                </label>
-
-                <label>
-                  <span>Time</span>
-                  <input
-                    type="text"
-                    name="time"
-                    value={slotForm.time}
-                    onChange={handleSlotFormChange}
-                    placeholder="8:00 PM - 9:30 PM"
-                  />
-                </label>
-
-                <label>
-                  <span>Capacity</span>
-                  <input
-                    type="number"
-                    name="capacity"
-                    value={slotForm.capacity}
-                    onChange={handleSlotFormChange}
-                    placeholder="22"
-                  />
-                </label>
-
-                <button type="submit" disabled={addingSlot}>
-                  {addingSlot ? "Adding..." : "Add Slot"}
-                </button>
-              </form>
-
-              <div className="admin-sports-list">
-                {sports.map((sport) => (
-                  <article key={sport.id} className="admin-sport-row">
-                    <div>
-                      <strong>
-                        {sport.icon} {sport.name}
-                      </strong>
-                      <span>{sport.venue}</span>
-                    </div>
-
-                    <Link to={`/sports/${sport.id}`}>
-                      {sport.totalSlots} slots
-                    </Link>
-                  </article>
-                ))}
-              </div>
-            </section>
-            <section className="admin-panel">
-  <div className="admin-panel-head">
-    <div>
-      <p className="eyebrow">Booking Monitor</p>
-      <h2>All Bookings</h2>
-    </div>
-  </div>
-
-  {adminBookings.length === 0 ? (
-    <div className="panel-message">No bookings found yet.</div>
-  ) : (
-    <div className="admin-bookings-list">
-      {adminBookings.map((booking) => {
-        const isCancelled = booking.status === "cancelled";
-
-        return (
-          <article key={booking.id} className="admin-booking-row">
-            <div className="admin-booking-main">
-              <span
-                className={
-                  isCancelled
-                    ? "booking-status cancelled"
-                    : "booking-status"
-                }
-              >
-                {booking.status}
-              </span>
-
-              <strong>{booking.sportName}</strong>
-              <p>{booking.slotTime}</p>
-            </div>
-
-            <div className="admin-booking-user">
-              <strong>{booking.userName}</strong>
-              <span>{booking.userEmail}</span>
-            </div>
-
-            <Link to={`/sports/${booking.sportSlug}`}>View sport</Link>
-          </article>
-        );
-      })}
-    </div>
-  )}
-</section>
+            <AdminBookingsList adminBookings={adminBookings} />
           </>
         )}
       </main>
