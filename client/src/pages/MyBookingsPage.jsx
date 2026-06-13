@@ -8,6 +8,7 @@ function MyBookingsPage() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [cancellingId, setCancellingId] = useState(null);
 
   async function fetchMyBookings() {
     try {
@@ -23,6 +24,28 @@ function MyBookingsPage() {
       });
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleCancelBooking(bookingId) {
+    try {
+      setCancellingId(bookingId);
+
+      const res = await api.patch(`/api/bookings/${bookingId}/cancel`);
+
+      setToast({
+        type: "success",
+        message: res.data.message || "Booking cancelled successfully",
+      });
+
+      fetchMyBookings();
+    } catch (err) {
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to cancel booking",
+      });
+    } finally {
+      setCancellingId(null);
     }
   }
 
@@ -64,17 +87,51 @@ function MyBookingsPage() {
           </section>
         ) : (
           <section className="bookings-grid">
-            {bookings.map((booking) => (
-              <article key={booking.id} className="booking-card">
-                <div>
-                  <span className="booking-status">{booking.status}</span>
-                  <h2>{booking.sportName}</h2>
-                  <p>{booking.slotTime}</p>
-                </div>
+            {bookings.map((booking) => {
+              const isCancelled = booking.status === "cancelled";
 
-                <Link to={`/sports/${booking.sportSlug}`}>View sport</Link>
-              </article>
-            ))}
+              return (
+                <article
+                  key={booking.id}
+                  className={
+                    isCancelled
+                      ? "booking-card booking-card-cancelled"
+                      : "booking-card"
+                  }
+                >
+                  <div>
+                    <span
+                      className={
+                        isCancelled
+                          ? "booking-status cancelled"
+                          : "booking-status"
+                      }
+                    >
+                      {booking.status}
+                    </span>
+
+                    <h2>{booking.sportName}</h2>
+                    <p>{booking.slotTime}</p>
+                  </div>
+
+                  <div className="booking-actions">
+                    <Link to={`/sports/${booking.sportSlug}`}>View sport</Link>
+
+                    {!isCancelled && (
+                      <button
+                        type="button"
+                        onClick={() => handleCancelBooking(booking.id)}
+                        disabled={cancellingId === booking.id}
+                      >
+                        {cancellingId === booking.id
+                          ? "Cancelling..."
+                          : "Cancel"}
+                      </button>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
           </section>
         )}
       </main>
