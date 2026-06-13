@@ -105,7 +105,79 @@ async function createSport(req, res) {
   }
 }
 
+async function addSlotToSport(req, res) {
+  try {
+    const { sportSlug } = req.params;
+    const { slotId, time, capacity } = req.body || {};
+
+    if (!slotId || !time || !capacity) {
+      return res.status(400).json({
+        success: false,
+        message: "Slot ID, time and capacity are required",
+      });
+    }
+
+    if (Number(capacity) <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Capacity must be greater than 0",
+      });
+    }
+
+    const sport = await Sport.findOne({ slug: sportSlug });
+
+    if (!sport) {
+      return res.status(404).json({
+        success: false,
+        message: "Sport not found",
+      });
+    }
+
+    const slotAlreadyExists = sport.slots.some(
+      (slot) => slot.slotId === slotId
+    );
+
+    if (slotAlreadyExists) {
+      return res.status(400).json({
+        success: false,
+        message: "Slot already exists for this sport",
+      });
+    }
+
+    sport.slots.push({
+      slotId,
+      time,
+      capacity: Number(capacity),
+      booked: 0,
+    });
+
+    await sport.save();
+
+    res.status(201).json({
+      success: true,
+      message: "Slot added successfully",
+      data: {
+        id: sport.slug,
+        name: sport.name,
+        totalSlots: sport.slots.length,
+        addedSlot: {
+          id: slotId,
+          time,
+          capacity: Number(capacity),
+          booked: 0,
+        },
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong while adding slot",
+    });
+  }
+}
+
 module.exports = {
   getAdminStats,
   createSport,
+  addSlotToSport,
 };

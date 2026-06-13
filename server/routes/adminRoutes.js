@@ -3,6 +3,7 @@ const express = require("express");
 const {
   getAdminStats,
   createSport,
+  addSlotToSport,
 } = require("../controllers/adminController");
 
 const {
@@ -15,5 +16,12 @@ const router = express.Router();
 router.get("/stats", protect, authorizeRoles("admin"), getAdminStats);
 
 router.post("/sports", protect, authorizeRoles("admin"), createSport);
+
+router.post(
+  "/sports/:sportSlug/slots",
+  protect,
+  authorizeRoles("admin"),
+  addSlotToSport
+);
 
 module.exports = router;

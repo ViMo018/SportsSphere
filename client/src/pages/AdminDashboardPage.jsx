@@ -6,9 +6,11 @@ import Toast from "../components/Toast";
 
 function AdminDashboardPage() {
   const [stats, setStats] = useState(null);
+  const [sports, setSports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [creating, setCreating] = useState(false);
+  const [addingSlot, setAddingSlot] = useState(false);
 
   const [sportForm, setSportForm] = useState({
     slug: "",
@@ -20,17 +22,42 @@ function AdminDashboardPage() {
     description: "",
   });
 
+  const [slotForm, setSlotForm] = useState({
+    sportSlug: "",
+    slotId: "",
+    time: "",
+    capacity: "",
+  });
+
   async function fetchAdminStats() {
+    const res = await api.get("/api/admin/stats");
+    setStats(res.data.data);
+  }
+
+  async function fetchSports() {
+    const res = await api.get("/api/sports");
+    const sportsData = res.data.data;
+
+    setSports(sportsData);
+
+    setSlotForm((prevForm) => {
+      return {
+        ...prevForm,
+        sportSlug: prevForm.sportSlug || sportsData[0]?.id || "",
+      };
+    });
+  }
+
+  async function fetchAdminData() {
     try {
       setLoading(true);
 
-      const res = await api.get("/api/admin/stats");
-
-      setStats(res.data.data);
+      await fetchAdminStats();
+      await fetchSports();
     } catch (err) {
       setToast({
         type: "error",
-        message: err.response?.data?.message || "Unable to load admin stats",
+        message: err.response?.data?.message || "Unable to load admin dashboard",
       });
     } finally {
       setLoading(false);
@@ -41,6 +68,17 @@ function AdminDashboardPage() {
     const { name, value } = event.target;
 
     setSportForm((prevForm) => {
+      return {
+        ...prevForm,
+        [name]: value,
+      };
+    });
+  }
+
+  function handleSlotFormChange(event) {
+    const { name, value } = event.target;
+
+    setSlotForm((prevForm) => {
       return {
         ...prevForm,
         [name]: value,
@@ -76,7 +114,7 @@ function AdminDashboardPage() {
         description: "",
       });
 
-      fetchAdminStats();
+      await fetchAdminData();
     } catch (err) {
       setToast({
         type: "error",
@@ -87,8 +125,50 @@ function AdminDashboardPage() {
     }
   }
 
+  async function handleAddSlot(event) {
+    event.preventDefault();
+
+    try {
+      setAddingSlot(true);
+
+      const payload = {
+        slotId: slotForm.slotId,
+        time: slotForm.time,
+        capacity: Number(slotForm.capacity),
+      };
+
+      const res = await api.post(
+        `/api/admin/sports/${slotForm.sportSlug}/slots`,
+        payload
+      );
+
+      setToast({
+        type: "success",
+        message: res.data.message || "Slot added successfully",
+      });
+
+      setSlotForm((prevForm) => {
+        return {
+          ...prevForm,
+          slotId: "",
+          time: "",
+          capacity: "",
+        };
+      });
+
+      await fetchSports();
+    } catch (err) {
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to add slot",
+      });
+    } finally {
+      setAddingSlot(false);
+    }
+  }
+
   useEffect(() => {
-    fetchAdminStats();
+    fetchAdminData();
   }, []);
 
   return (
@@ -102,8 +182,8 @@ function AdminDashboardPage() {
             <p className="eyebrow">Admin Control</p>
             <h1>Dashboard</h1>
             <p>
-              Monitor SportsSphere activity, bookings, users, and sports from
-              one place.
+              Monitor SportsSphere activity, bookings, users, sports, and slots
+              from one place.
             </p>
           </div>
 
@@ -241,6 +321,86 @@ function AdminDashboardPage() {
                   {creating ? "Creating..." : "Create Sport"}
                 </button>
               </form>
+            </section>
+
+            <section className="admin-panel">
+              <div className="admin-panel-head">
+                <div>
+                  <p className="eyebrow">Slot Management</p>
+                  <h2>Add Slot to Sport</h2>
+                </div>
+              </div>
+
+              <form className="admin-form" onSubmit={handleAddSlot}>
+                <label>
+                  <span>Sport</span>
+                  <select
+                    name="sportSlug"
+                    value={slotForm.sportSlug}
+                    onChange={handleSlotFormChange}
+                  >
+                    {sports.map((sport) => (
+                      <option key={sport.id} value={sport.id}>
+                        {sport.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label>
+                  <span>Slot ID</span>
+                  <input
+                    type="text"
+                    name="slotId"
+                    value={slotForm.slotId}
+                    onChange={handleSlotFormChange}
+                    placeholder="c5"
+                  />
+                </label>
+
+                <label>
+                  <span>Time</span>
+                  <input
+                    type="text"
+                    name="time"
+                    value={slotForm.time}
+                    onChange={handleSlotFormChange}
+                    placeholder="8:00 PM - 9:30 PM"
+                  />
+                </label>
+
+                <label>
+                  <span>Capacity</span>
+                  <input
+                    type="number"
+                    name="capacity"
+                    value={slotForm.capacity}
+                    onChange={handleSlotFormChange}
+                    placeholder="22"
+                  />
+                </label>
+
+                <button type="submit" disabled={addingSlot}>
+                  {addingSlot ? "Adding..." : "Add Slot"}
+                </button>
+              </form>
+
+              <div className="admin-sports-list">
+                {sports.map((sport) => (
+                  <article key={sport.id} className="admin-sport-row">
+                    <div>
+                      <strong>
+                        {sport.icon} {sport.name}
+                      </strong>
+                      <span>{sport.venue}</span>
+                    </div>
+
+                    <Link to={`/sports/${sport.id}`}>
+                      {sport.totalSlots} slots
+                    </Link>
+                  </article>
+                ))}
+              </div>
             </section>
           </>
         )}
