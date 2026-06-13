@@ -36,6 +36,8 @@ function Navbar() {
       <div className="navbar-links">
         <Link to="/sports/cricket">Sports</Link>
 
+        {user && <Link to="/my-bookings">My Bookings</Link>}
+
         {user ? (
           <>
             <span className="navbar-user">Hi, {user.name}</span>
