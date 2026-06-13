@@ -7,7 +7,7 @@ const sportRoutes = require("./routes/sportRoutes");
 const healthRoutes = require("./routes/healthRoutes");
 const authRoutes = require("./routes/authRoutes");
 const bookingRoutes = require("./routes/bookingRoutes");
-
+const adminRoutes = require("./routes/adminRoutes");
 const {
   notFound,
   errorHandler,
@@ -29,7 +29,7 @@ app.use("/api/health", healthRoutes);
 app.use("/api/sports", sportRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/bookings", bookingRoutes);
-
+app.use("/api/admin", adminRoutes);
 app.use(notFound);
 app.use(errorHandler);
 

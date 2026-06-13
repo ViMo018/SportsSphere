@@ -661,5 +661,48 @@ button {
     flex-direction: column;
   }
 }
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  border: 1px solid #d7c9b1;
+  border-radius: 24px;
+  background: #fffaf0;
+  padding: 22px;
+  box-shadow: 0 14px 35px rgba(31, 36, 31, 0.07);
+}
+
+.stat-card span {
+  display: block;
+  color: #7c6749;
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 14px;
+}
+
+.stat-card strong {
+  display: block;
+  color: #1f241f;
+  font-size: 3rem;
+  line-height: 1;
+  letter-spacing: -0.06em;
+}
+
+@media (max-width: 1000px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
   

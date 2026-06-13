@@ -32,11 +32,12 @@ function Navbar() {
         <span className="navbar-logo">SS</span>
         <span>SportsSphere</span>
       </Link>
-
       <div className="navbar-links">
         <Link to="/sports/cricket">Sports</Link>
 
         {user && <Link to="/my-bookings">My Bookings</Link>}
+
+        {user?.role === "admin" && <Link to="/admin">Admin</Link>}
 
         {user ? (
           <>
