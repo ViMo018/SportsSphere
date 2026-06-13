@@ -1,4 +1,5 @@
 const Sport = require("../models/Sport");
+const Booking = require("../models/Booking");
 const AppError = require("../utils/AppError");
 
 function formatSport(sport) {
@@ -38,6 +39,18 @@ function formatSportPreview(sport) {
     description: sport.description,
     totalSlots,
     availableSlots,
+  };
+}
+
+function formatBooking(booking) {
+  return {
+    id: booking._id,
+    sportName: booking.sportName,
+    sportSlug: booking.sportSlug,
+    slotId: booking.slotId,
+    slotTime: booking.slotTime,
+    status: booking.status,
+    createdAt: booking.createdAt,
   };
 }
 
@@ -100,11 +113,22 @@ async function bookSlot(req, res, next) {
 
     await sport.save();
 
-res.json({
-  success: true,
-  message: `Slot booked successfully by ${req.user.name}`,
-  data: formatSport(sport),
-});
+    const booking = await Booking.create({
+      user: req.user._id,
+      sport: sport._id,
+      sportSlug: sport.slug,
+      sportName: sport.name,
+      slotId: slot.slotId,
+      slotTime: slot.time,
+      status: "booked",
+    });
+
+    res.json({
+      success: true,
+      message: `Slot booked successfully by ${req.user.name}`,
+      data: formatSport(sport),
+      booking: formatBooking(booking),
+    });
   } catch (error) {
     next(error);
   }
