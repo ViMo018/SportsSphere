@@ -104,7 +104,16 @@ async function bookSlot(req, res, next) {
     if (!slot) {
       return next(new AppError("Slot not found", 404));
     }
+    const existingBooking = await Booking.findOne({
+      user: req.user._id,
+      sport: sport._id,
+      slotId: slot.slotId,
+      status: "booked",
+    });
 
+    if (existingBooking) {
+      return next(new AppError("You have already booked this slot", 400));
+    }
     if (slot.booked >= slot.capacity) {
       return next(new AppError("Slot is already full", 400));
     }
