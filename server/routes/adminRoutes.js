@@ -1,6 +1,10 @@
 const express = require("express");
 
-const { getAdminStats } = require("../controllers/adminController");
+const {
+  getAdminStats,
+  createSport,
+} = require("../controllers/adminController");
+
 const {
   protect,
   authorizeRoles,
@@ -9,5 +13,7 @@ const {
 const router = express.Router();
 
 router.get("/stats", protect, authorizeRoles("admin"), getAdminStats);
+
+router.post("/sports", protect, authorizeRoles("admin"), createSport);
 
 module.exports = router;

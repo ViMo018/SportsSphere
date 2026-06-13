@@ -8,6 +8,17 @@ function AdminDashboardPage() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [creating, setCreating] = useState(false);
+
+  const [sportForm, setSportForm] = useState({
+    slug: "",
+    name: "",
+    icon: "",
+    venue: "",
+    playersPerTeam: "",
+    difficulty: "",
+    description: "",
+  });
 
   async function fetchAdminStats() {
     try {
@@ -23,6 +34,56 @@ function AdminDashboardPage() {
       });
     } finally {
       setLoading(false);
+    }
+  }
+
+  function handleSportFormChange(event) {
+    const { name, value } = event.target;
+
+    setSportForm((prevForm) => {
+      return {
+        ...prevForm,
+        [name]: value,
+      };
+    });
+  }
+
+  async function handleCreateSport(event) {
+    event.preventDefault();
+
+    try {
+      setCreating(true);
+
+      const payload = {
+        ...sportForm,
+        playersPerTeam: Number(sportForm.playersPerTeam),
+      };
+
+      const res = await api.post("/api/admin/sports", payload);
+
+      setToast({
+        type: "success",
+        message: res.data.message || "Sport created successfully",
+      });
+
+      setSportForm({
+        slug: "",
+        name: "",
+        icon: "",
+        venue: "",
+        playersPerTeam: "",
+        difficulty: "",
+        description: "",
+      });
+
+      fetchAdminStats();
+    } catch (err) {
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to create sport",
+      });
+    } finally {
+      setCreating(false);
     }
   }
 
@@ -62,32 +123,126 @@ function AdminDashboardPage() {
             <Link to="/login">Login</Link>
           </section>
         ) : (
-          <section className="stats-grid">
-            <article className="stat-card">
-              <span>Total Users</span>
-              <strong>{stats.totalUsers}</strong>
-            </article>
+          <>
+            <section className="stats-grid">
+              <article className="stat-card">
+                <span>Total Users</span>
+                <strong>{stats.totalUsers}</strong>
+              </article>
 
-            <article className="stat-card">
-              <span>Total Sports</span>
-              <strong>{stats.totalSports}</strong>
-            </article>
+              <article className="stat-card">
+                <span>Total Sports</span>
+                <strong>{stats.totalSports}</strong>
+              </article>
 
-            <article className="stat-card">
-              <span>Total Bookings</span>
-              <strong>{stats.totalBookings}</strong>
-            </article>
+              <article className="stat-card">
+                <span>Total Bookings</span>
+                <strong>{stats.totalBookings}</strong>
+              </article>
 
-            <article className="stat-card">
-              <span>Active Bookings</span>
-              <strong>{stats.activeBookings}</strong>
-            </article>
+              <article className="stat-card">
+                <span>Active Bookings</span>
+                <strong>{stats.activeBookings}</strong>
+              </article>
 
-            <article className="stat-card">
-              <span>Cancelled Bookings</span>
-              <strong>{stats.cancelledBookings}</strong>
-            </article>
-          </section>
+              <article className="stat-card">
+                <span>Cancelled Bookings</span>
+                <strong>{stats.cancelledBookings}</strong>
+              </article>
+            </section>
+
+            <section className="admin-panel">
+              <div className="admin-panel-head">
+                <div>
+                  <p className="eyebrow">Sports Management</p>
+                  <h2>Add New Sport</h2>
+                </div>
+              </div>
+
+              <form className="admin-form" onSubmit={handleCreateSport}>
+                <label>
+                  <span>Slug</span>
+                  <input
+                    type="text"
+                    name="slug"
+                    value={sportForm.slug}
+                    onChange={handleSportFormChange}
+                    placeholder="squash"
+                  />
+                </label>
+
+                <label>
+                  <span>Name</span>
+                  <input
+                    type="text"
+                    name="name"
+                    value={sportForm.name}
+                    onChange={handleSportFormChange}
+                    placeholder="Squash"
+                  />
+                </label>
+
+                <label>
+                  <span>Icon</span>
+                  <input
+                    type="text"
+                    name="icon"
+                    value={sportForm.icon}
+                    onChange={handleSportFormChange}
+                    placeholder="🎾"
+                  />
+                </label>
+
+                <label>
+                  <span>Venue</span>
+                  <input
+                    type="text"
+                    name="venue"
+                    value={sportForm.venue}
+                    onChange={handleSportFormChange}
+                    placeholder="Indoor Court 2"
+                  />
+                </label>
+
+                <label>
+                  <span>Players Per Team</span>
+                  <input
+                    type="number"
+                    name="playersPerTeam"
+                    value={sportForm.playersPerTeam}
+                    onChange={handleSportFormChange}
+                    placeholder="1"
+                  />
+                </label>
+
+                <label>
+                  <span>Difficulty</span>
+                  <input
+                    type="text"
+                    name="difficulty"
+                    value={sportForm.difficulty}
+                    onChange={handleSportFormChange}
+                    placeholder="Medium"
+                  />
+                </label>
+
+                <label className="admin-form-wide">
+                  <span>Description</span>
+                  <textarea
+                    name="description"
+                    value={sportForm.description}
+                    onChange={handleSportFormChange}
+                    placeholder="Book squash slots for quick indoor matches."
+                    rows="4"
+                  />
+                </label>
+
+                <button type="submit" disabled={creating}>
+                  {creating ? "Creating..." : "Create Sport"}
+                </button>
+              </form>
+            </section>
+          </>
         )}
       </main>
     </>
