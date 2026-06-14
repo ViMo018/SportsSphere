@@ -35,6 +35,44 @@ async function getAdminStats(req, res) {
   }
 }
 
+function formatAdminSport(sport) {
+  const totalSlots = sport.slots.length;
+
+  const availableSlots = sport.slots.filter(
+    (slot) => slot.booked < slot.capacity
+  ).length;
+
+  return {
+    id: sport.slug,
+    name: sport.name,
+    icon: sport.icon,
+    venue: sport.venue,
+    playersPerTeam: sport.playersPerTeam,
+    difficulty: sport.difficulty,
+    description: sport.description,
+    isActive: sport.isActive !== false,
+    totalSlots,
+    availableSlots,
+  };
+}
+
+async function getAdminSports(req, res) {
+  try {
+    const sports = await Sport.find().sort({ createdAt: -1 });
+
+    res.json({
+      success: true,
+      count: sports.length,
+      data: sports.map((sport) => formatAdminSport(sport)),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Something went wrong while fetching sports",
+    });
+  }
+}
+
 async function createSport(req, res) {
   try {
     const {
@@ -79,23 +117,14 @@ async function createSport(req, res) {
       playersPerTeam,
       difficulty,
       description,
+      isActive: true,
       slots: [],
     });
 
     res.status(201).json({
       success: true,
       message: "Sport created successfully",
-      data: {
-        id: sport.slug,
-        name: sport.name,
-        icon: sport.icon,
-        venue: sport.venue,
-        playersPerTeam: sport.playersPerTeam,
-        difficulty: sport.difficulty,
-        description: sport.description,
-        totalSlots: sport.slots.length,
-        availableSlots: 0,
-      },
+      data: formatAdminSport(sport),
     });
   } catch (error) {
     res.status(500).json({
@@ -209,9 +238,52 @@ async function getAllBookings(req, res) {
   }
 }
 
+async function updateSportStatus(req, res) {
+  try {
+    const { sportSlug } = req.params;
+    const { isActive } = req.body || {};
+
+    if (typeof isActive !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "isActive must be true or false",
+      });
+    }
+
+    const sport = await Sport.findOne({ slug: sportSlug });
+
+    if (!sport) {
+      return res.status(404).json({
+        success: false,
+        message: "Sport not found",
+      });
+    }
+
+    sport.isActive = isActive;
+
+    await sport.save();
+
+    res.json({
+      success: true,
+      message: isActive
+        ? "Sport activated successfully"
+        : "Sport deactivated successfully",
+      data: formatAdminSport(sport),
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message:
+        error.message || "Something went wrong while updating sport status",
+    });
+  }
+}
+
 module.exports = {
   getAdminStats,
+  getAdminSports,
   createSport,
   addSlotToSport,
   getAllBookings,
+  updateSportStatus,
 };

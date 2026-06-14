@@ -5,7 +5,7 @@ import AuthForm from "../components/AuthForm";
 import Toast from "../components/Toast";
 import { useAuth } from "../context/AuthContext";
 
-function RegisterPage() {
+function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,7 +14,6 @@ function RegisterPage() {
   const redirectPath = location.state?.from || "/sports/cricket";
 
   const [formData, setFormData] = useState({
-    name: "",
     email: "",
     password: "",
   });
@@ -23,12 +22,6 @@ function RegisterPage() {
   const [toast, setToast] = useState(null);
 
   const fields = [
-    {
-      name: "name",
-      label: "Name",
-      type: "text",
-      placeholder: "Vishva Modh",
-    },
     {
       name: "email",
       label: "Email",
@@ -39,7 +32,7 @@ function RegisterPage() {
       name: "password",
       label: "Password",
       type: "password",
-      placeholder: "At least 6 characters",
+      placeholder: "Enter your password",
     },
   ];
 
@@ -66,20 +59,20 @@ function RegisterPage() {
     try {
       setLoading(true);
 
-      const res = await api.post("/api/auth/register", formData);
+      const res = await api.post("/api/auth/login", formData);
 
       login(res.data.data, res.data.token);
 
       setToast({
         type: "success",
-        message: res.data.message || "Account created successfully",
+        message: res.data.message || "Login successful",
       });
 
       navigate(redirectPath);
     } catch (err) {
       setToast({
         type: "error",
-        message: err.response?.data?.message || "Unable to register",
+        message: err.response?.data?.message || "Unable to login",
       });
     } finally {
       setLoading(false);
@@ -91,19 +84,19 @@ function RegisterPage() {
       <Toast toast={toast} onClose={() => setToast(null)} />
 
       <AuthForm
-        title="Create account"
-        buttonText="Register"
+        title="Welcome back"
+        buttonText="Login"
         fields={fields}
         formData={formData}
         onChange={handleChange}
         onSubmit={handleSubmit}
         loading={loading}
-        footerText="Already have an account?"
-        footerLinkText="Login"
-        onFooterClick={() => navigate("/login", { state: location.state })}
+        footerText="New to SportsSphere?"
+        footerLinkText="Create account"
+        onFooterClick={() => navigate("/register", { state: location.state })}
       />
     </>
   );
 }
 
-export default RegisterPage;
+export default LoginPage;

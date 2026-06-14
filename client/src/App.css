@@ -914,5 +914,44 @@ button {
     align-items: flex-start;
   }
 }
+.admin-sport-row small {
+  color: #7c6749;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.72rem;
+}
+
+.admin-sport-row-inactive {
+  opacity: 0.65;
+}
+
+.admin-sport-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-sport-actions button {
+  border: 0;
+  border-radius: 999px;
+  background: #ffe7e1;
+  color: #742b20;
+  padding: 10px 14px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.admin-sport-row-inactive .admin-sport-actions button {
+  background: #e7f7df;
+  color: #23451e;
+}
+
+@media (max-width: 700px) {
+  .admin-sport-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 
   

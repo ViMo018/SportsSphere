@@ -40,7 +40,7 @@ function AdminDashboardPage() {
   }
 
   async function fetchSports() {
-    const res = await api.get("/api/sports");
+    const res = await api.get("/api/admin/sports");
     const sportsData = res.data.data;
 
     setSports(sportsData);
@@ -72,6 +72,25 @@ function AdminDashboardPage() {
       });
     } finally {
       setLoading(false);
+    }
+  }
+  async function handleToggleSportStatus(sportSlug, nextStatus) {
+    try {
+      const res = await api.patch(`/api/admin/sports/${sportSlug}/status`, {
+        isActive: nextStatus,
+      });
+
+      setToast({
+        type: "success",
+        message: res.data.message || "Sport status updated",
+      });
+
+      await fetchSports();
+    } catch (err) {
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to update sport status",
+      });
     }
   }
 
@@ -230,6 +249,7 @@ function AdminDashboardPage() {
               onSlotFormChange={handleSlotFormChange}
               onAddSlot={handleAddSlot}
               addingSlot={addingSlot}
+              onToggleSportStatus={handleToggleSportStatus}
             />
 
             <AdminBookingsList adminBookings={adminBookings} />

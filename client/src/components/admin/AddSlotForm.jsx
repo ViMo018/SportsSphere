@@ -6,6 +6,7 @@ function AddSlotForm({
   onSlotFormChange,
   onAddSlot,
   addingSlot,
+  onToggleSportStatus,
 }) {
   return (
     <section className="admin-panel">
@@ -26,7 +27,7 @@ function AddSlotForm({
           >
             {sports.map((sport) => (
               <option key={sport.id} value={sport.id}>
-                {sport.name}
+                {sport.name} {sport.isActive ? "" : "(Inactive)"}
               </option>
             ))}
           </select>
@@ -72,15 +73,36 @@ function AddSlotForm({
 
       <div className="admin-sports-list">
         {sports.map((sport) => (
-          <article key={sport.id} className="admin-sport-row">
+          <article
+            key={sport.id}
+            className={
+              sport.isActive
+                ? "admin-sport-row"
+                : "admin-sport-row admin-sport-row-inactive"
+            }
+          >
             <div>
               <strong>
                 {sport.icon} {sport.name}
               </strong>
+
               <span>{sport.venue}</span>
+
+              <small>{sport.isActive ? "Active" : "Inactive"}</small>
             </div>
 
-            <Link to={`/sports/${sport.id}`}>{sport.totalSlots} slots</Link>
+            <div className="admin-sport-actions">
+              <Link to={`/sports/${sport.id}`}>{sport.totalSlots} slots</Link>
+
+              <button
+                type="button"
+                onClick={() =>
+                  onToggleSportStatus(sport.id, !sport.isActive)
+                }
+              >
+                {sport.isActive ? "Deactivate" : "Activate"}
+              </button>
+            </div>
           </article>
         ))}
       </div>

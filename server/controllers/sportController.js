@@ -11,6 +11,7 @@ function formatSport(sport) {
     playersPerTeam: sport.playersPerTeam,
     difficulty: sport.difficulty,
     description: sport.description,
+    isActive: sport.isActive !== false,
     slots: sport.slots.map((slot) => {
       return {
         id: slot.slotId,
@@ -37,6 +38,7 @@ function formatSportPreview(sport) {
     playersPerTeam: sport.playersPerTeam,
     difficulty: sport.difficulty,
     description: sport.description,
+    isActive: sport.isActive !== false,
     totalSlots,
     availableSlots,
   };
@@ -56,7 +58,9 @@ function formatBooking(booking) {
 
 async function getAllSports(req, res, next) {
   try {
-    const sports = await Sport.find();
+    const sports = await Sport.find({
+      isActive: { $ne: false },
+    });
 
     const sportsPreview = sports.map((sport) => formatSportPreview(sport));
 
@@ -74,7 +78,10 @@ async function getSportById(req, res, next) {
   try {
     const { id } = req.params;
 
-    const sport = await Sport.findOne({ slug: id });
+    const sport = await Sport.findOne({
+      slug: id,
+      isActive: { $ne: false },
+    });
 
     if (!sport) {
       return next(new AppError("Sport not found", 404));
@@ -93,7 +100,10 @@ async function bookSlot(req, res, next) {
   try {
     const { sportId, slotId } = req.params;
 
-    const sport = await Sport.findOne({ slug: sportId });
+    const sport = await Sport.findOne({
+      slug: sportId,
+      isActive: { $ne: false },
+    });
 
     if (!sport) {
       return next(new AppError("Sport not found", 404));
@@ -104,6 +114,7 @@ async function bookSlot(req, res, next) {
     if (!slot) {
       return next(new AppError("Slot not found", 404));
     }
+
     const existingBooking = await Booking.findOne({
       user: req.user._id,
       sport: sport._id,
@@ -114,6 +125,7 @@ async function bookSlot(req, res, next) {
     if (existingBooking) {
       return next(new AppError("You have already booked this slot", 400));
     }
+
     if (slot.booked >= slot.capacity) {
       return next(new AppError("Slot is already full", 400));
     }

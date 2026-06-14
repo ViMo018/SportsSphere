@@ -6,17 +6,19 @@ const slotSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     time: {
       type: String,
       required: true,
     },
+
     capacity: {
       type: Number,
       required: true,
     },
+
     booked: {
       type: Number,
-      required: true,
       default: 0,
     },
   },
@@ -31,37 +33,47 @@ const sportSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
       trim: true,
     },
+
     name: {
       type: String,
       required: true,
       trim: true,
     },
+
     icon: {
       type: String,
       required: true,
     },
+
     venue: {
       type: String,
       required: true,
     },
+
     playersPerTeam: {
       type: Number,
       required: true,
     },
+
     difficulty: {
       type: String,
       required: true,
     },
+
     description: {
       type: String,
       required: true,
     },
-    slots: {
-      type: [slotSchema],
-      default: [],
+
+    isActive: {
+      type: Boolean,
+      default: true,
     },
+
+    slots: [slotSchema],
   },
   {
     timestamps: true,
