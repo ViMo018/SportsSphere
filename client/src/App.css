@@ -953,5 +953,197 @@ button {
     flex-direction: column;
   }
 }
+.sport-details {
+  display: grid;
+  gap: 22px;
+}
+
+.sport-details-head {
+  border: 1px solid #d7c9b1;
+  border-radius: 28px;
+  background: #fffaf0;
+  padding: 26px;
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.sport-details-head h2 {
+  margin: 0;
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 0.92;
+  letter-spacing: -0.07em;
+}
+
+.sport-details-head h2 span {
+  font-size: 0.85em;
+}
+
+.sport-details-head p {
+  max-width: 620px;
+  color: #625f56;
+  line-height: 1.7;
+}
+
+.sport-meta-card {
+  min-width: 180px;
+  border-radius: 22px;
+  background: #f4ead8;
+  padding: 18px;
+}
+
+.sport-meta-card span,
+.sport-info-grid span {
+  display: block;
+  color: #7c6749;
+  font-size: 0.75rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+
+.sport-meta-card strong,
+.sport-info-grid strong {
+  color: #25291f;
+  font-size: 1.2rem;
+}
+
+.sport-info-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.sport-info-grid div {
+  border: 1px solid #d7c9b1;
+  border-radius: 22px;
+  background: #fffaf0;
+  padding: 18px;
+}
+
+.slots-section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slots-section-head h3 {
+  margin: 0;
+  font-size: 2rem;
+  letter-spacing: -0.05em;
+}
+
+.slots-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.slot-card {
+  border: 1px solid #d7c9b1;
+  border-radius: 24px;
+  background: #fffaf0;
+  padding: 20px;
+  display: grid;
+  gap: 16px;
+  box-shadow: 0 12px 34px rgba(31, 36, 31, 0.06);
+}
+
+.slot-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.slot-time {
+  margin: 0 0 6px;
+  color: #25291f;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.slot-card-top span {
+  color: #7c6749;
+  font-weight: 800;
+}
+
+.slot-card-top strong {
+  border-radius: 999px;
+  background: #f4ead8;
+  color: #25291f;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+}
+
+.slot-progress {
+  height: 10px;
+  border-radius: 999px;
+  background: #eadcc5;
+  overflow: hidden;
+}
+
+.slot-progress div {
+  height: 100%;
+  border-radius: inherit;
+  background: #25291f;
+}
+
+.slot-card button {
+  border: 0;
+  border-radius: 999px;
+  background: #25291f;
+  color: #fff8e8;
+  padding: 13px 16px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.slot-card button:disabled {
+  background: #b8aa91;
+  cursor: not-allowed;
+}
+
+.slot-card-full {
+  opacity: 0.68;
+}
+
+.slot-card-full .slot-progress div {
+  background: #742b20;
+}
+
+.sport-empty {
+  border: 1px solid #d7c9b1;
+  border-radius: 28px;
+  background: #fffaf0;
+  padding: 28px;
+}
+
+.sport-empty h2 {
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+.sport-empty p {
+  color: #625f56;
+  line-height: 1.7;
+}
+
+@media (max-width: 900px) {
+  .sport-details-head {
+    flex-direction: column;
+  }
+
+  .sport-meta-card {
+    width: 100%;
+  }
+
+  .sport-info-grid,
+  .slots-grid {
+    grid-template-columns: 1fr;
+  }
+}
 
   

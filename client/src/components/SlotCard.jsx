@@ -1,19 +1,33 @@
-function SlotCard({ slot, onBookSlot }) {
+function SlotCard({ slot, onBookSlot, booking }) {
   const isFull = slot.booked >= slot.capacity;
+  const remaining = slot.capacity - slot.booked;
+  const fillPercentage = Math.min((slot.booked / slot.capacity) * 100, 100);
 
   return (
-    <div className="slot-card">
-      <div>
-        <h4>{slot.time}</h4>
-        <p>
-          {slot.booked}/{slot.capacity} players booked
-        </p>
+    <article className={isFull ? "slot-card slot-card-full" : "slot-card"}>
+      <div className="slot-card-top">
+        <div>
+          <p className="slot-time">{slot.time}</p>
+          <span>{remaining} spots left</span>
+        </div>
+
+        <strong>
+          {slot.booked}/{slot.capacity}
+        </strong>
       </div>
 
-      <button disabled={isFull} onClick={() => onBookSlot(slot.id)}>
-        {isFull ? "Full" : "Book Slot"}
+      <div className="slot-progress">
+        <div style={{ width: `${fillPercentage}%` }} />
+      </div>
+
+      <button
+        type="button"
+        onClick={() => onBookSlot(slot.id)}
+        disabled={isFull || booking}
+      >
+        {booking ? "Booking..." : isFull ? "Slot Full" : "Book Slot"}
       </button>
-    </div>
+    </article>
   );
 }
 

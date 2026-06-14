@@ -6,6 +6,7 @@ import SportsList from "../components/SportsList";
 import SportDetails from "../components/SportDetails";
 import Toast from "../components/Toast";
 import Navbar from "../components/Navbar";
+
 function DashboardPage() {
   const { sportId } = useParams();
   const navigate = useNavigate();
@@ -16,16 +17,12 @@ function DashboardPage() {
   const [detailLoading, setDetailLoading] = useState(false);
   const [error, setError] = useState("");
   const [toast, setToast] = useState(null);
-
-  function showToast(message, type = "success") {
-    setToast({
-      message,
-      type,
-    });
-  }
+  const [bookingSlotId, setBookingSlotId] = useState(null);
 
   async function fetchSports() {
     try {
+      setError("");
+
       const res = await api.get("/api/sports");
       const sportsData = res.data.data;
 
@@ -39,12 +36,19 @@ function DashboardPage() {
 
   async function fetchSportDetails(id) {
     try {
+      setError("");
       setDetailLoading(true);
 
       const res = await api.get(`/api/sports/${id}`);
+
       setSelectedSport(res.data.data);
     } catch (err) {
-      setError("Unable to load sport details");
+      setSelectedSport(null);
+
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to load sport details",
+      });
     } finally {
       setDetailLoading(false);
     }
@@ -56,24 +60,29 @@ function DashboardPage() {
 
   async function handleBookSlot(slotId) {
     if (!selectedSport) {
-      showToast("Please select a sport first", "error");
       return;
     }
 
     try {
+      setBookingSlotId(slotId);
+
       const res = await api.patch(
         `/api/sports/${selectedSport.id}/slots/${slotId}/book`
       );
 
       setSelectedSport(res.data.data);
 
-      showToast(res.data.message || "Slot booked successfully", "success");
-
-      // update left-side available slot count
-      fetchSports();
+      setToast({
+        type: "success",
+        message: res.data.message || "Slot booked successfully",
+      });
     } catch (err) {
-      const message = err.response?.data?.message || "Booking failed";
-      showToast(message, "error");
+      setToast({
+        type: "error",
+        message: err.response?.data?.message || "Unable to book slot",
+      });
+    } finally {
+      setBookingSlotId(null);
     }
   }
 
@@ -81,7 +90,12 @@ function DashboardPage() {
     async function loadSports() {
       try {
         setLoading(true);
-        await fetchSports();
+
+        const sportsData = await fetchSports();
+
+        if (!sportId && sportsData.length > 0) {
+          navigate(`/sports/${sportsData[0].id}`, { replace: true });
+        }
       } finally {
         setLoading(false);
       }
@@ -89,12 +103,6 @@ function DashboardPage() {
 
     loadSports();
   }, []);
-
-  useEffect(() => {
-    if (!loading && !sportId && sports.length > 0) {
-      navigate(`/sports/${sports[0].id}`, { replace: true });
-    }
-  }, [loading, sportId, sports, navigate]);
 
   useEffect(() => {
     if (sportId) {
@@ -122,31 +130,35 @@ function DashboardPage() {
     return <div className="page-message error">{error}</div>;
   }
 
-return (
-  <>
-    <Toast toast={toast} onClose={() => setToast(null)} />
+  return (
+    <>
+      <Toast toast={toast} onClose={() => setToast(null)} />
 
-    <Navbar />
+      <Navbar />
 
-    <main className="app">
-      <Header sportsCount={sports.length} />
+      <main className="app">
+        <Header sportsCount={sports.length} />
 
-      <section className="dashboard">
-        <SportsList
-          sports={sports}
-          selectedSportId={selectedSport?.id}
-          onSelectSport={handleSelectSport}
-        />
+        <section className="dashboard">
+          <SportsList
+            sports={sports}
+            selectedSportId={selectedSport?.id || sportId}
+            onSelectSport={handleSelectSport}
+          />
 
-        <SportDetails
-          sport={selectedSport}
-          loading={detailLoading}
-          onBookSlot={handleBookSlot}
-        />
-      </section>
-    </main>
-  </>
-);
+          {detailLoading ? (
+            <div className="panel-message">Loading sport details...</div>
+          ) : (
+            <SportDetails
+              sport={selectedSport}
+              onBookSlot={handleBookSlot}
+              bookingSlotId={bookingSlotId}
+            />
+          )}
+        </section>
+      </main>
+    </>
+  );
 }
 
 export default DashboardPage;
