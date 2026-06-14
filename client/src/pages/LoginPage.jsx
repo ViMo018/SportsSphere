@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { useLocation, useNavigate } from "react-router-dom"; import api from "../services/api";
 import AuthForm from "../components/AuthForm";
 import Toast from "../components/Toast";
 function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectPath = location.state?.from || "/sports/cricket";
 
   const [formData, setFormData] = useState({
     email: "",
@@ -57,7 +58,7 @@ function LoginPage() {
       });
 
       setTimeout(() => {
-        navigate("/sports/cricket");
+        navigate(redirectPath);
       }, 700);
     } catch (err) {
       setToast({
