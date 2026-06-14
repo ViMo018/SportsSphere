@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../services/api";
+import { Link, useNavigate } from "react-router-dom"; import api from "../services/api";
 import Navbar from "../components/Navbar";
 import Toast from "../components/Toast";
 import AdminStats from "../components/admin/AdminStats";
@@ -16,7 +15,7 @@ function AdminDashboardPage() {
   const [toast, setToast] = useState(null);
   const [creating, setCreating] = useState(false);
   const [addingSlot, setAddingSlot] = useState(false);
-
+  const navigate = useNavigate();
   const [sportForm, setSportForm] = useState({
     slug: "",
     name: "",
@@ -66,6 +65,21 @@ function AdminDashboardPage() {
       await fetchSports();
       await fetchAdminBookings();
     } catch (err) {
+      if (err.response?.status === 401) {
+        navigate("/login", {
+          state: {
+            from: "/admin",
+          },
+        });
+
+        return;
+      }
+
+      if (err.response?.status === 403) {
+        navigate("/sports/cricket");
+        return;
+      }
+
       setToast({
         type: "error",
         message: err.response?.data?.message || "Unable to load admin dashboard",

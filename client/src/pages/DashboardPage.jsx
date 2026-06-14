@@ -1,15 +1,19 @@
 import { useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import api from "../services/api";
 import Header from "../components/Header";
 import SportsList from "../components/SportsList";
 import SportDetails from "../components/SportDetails";
 import Toast from "../components/Toast";
 import Navbar from "../components/Navbar";
+import { useAuth } from "../context/AuthContext";
 
 function DashboardPage() {
   const { sportId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const { isLoggedIn } = useAuth();
 
   const [sports, setSports] = useState([]);
   const [selectedSport, setSelectedSport] = useState(null);
@@ -29,7 +33,7 @@ function DashboardPage() {
       setSports(sportsData);
       return sportsData;
     } catch (err) {
-      setError("Unable to load sports data");
+      setError("Unable to load sports data. Please check if the backend is running.");
       return [];
     }
   }
@@ -63,6 +67,16 @@ function DashboardPage() {
       return;
     }
 
+    if (!isLoggedIn) {
+      navigate("/login", {
+        state: {
+          from: location.pathname,
+        },
+      });
+
+      return;
+    }
+
     try {
       setBookingSlotId(slotId);
 
@@ -77,6 +91,18 @@ function DashboardPage() {
         message: res.data.message || "Slot booked successfully",
       });
     } catch (err) {
+      const status = err.response?.status;
+
+      if (status === 401) {
+        navigate("/login", {
+          state: {
+            from: location.pathname,
+          },
+        });
+
+        return;
+      }
+
       setToast({
         type: "error",
         message: err.response?.data?.message || "Unable to book slot",
@@ -123,11 +149,31 @@ function DashboardPage() {
   }, [toast]);
 
   if (loading) {
-    return <div className="page-message">Loading SportsSphere...</div>;
+    return (
+      <>
+        <Navbar />
+        <main className="app">
+          <div className="page-message">Loading SportsSphere...</div>
+        </main>
+      </>
+    );
   }
 
   if (error) {
-    return <div className="page-message error">{error}</div>;
+    return (
+      <>
+        <Navbar />
+        <main className="app">
+          <section className="empty-panel">
+            <h2>Something went wrong</h2>
+            <p>{error}</p>
+            <button type="button" onClick={() => window.location.reload()}>
+              Try again
+            </button>
+          </section>
+        </main>
+      </>
+    );
   }
 
   return (

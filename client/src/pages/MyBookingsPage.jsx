@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import api from "../services/api";
+import { Link, useNavigate } from "react-router-dom";import api from "../services/api";
 import Navbar from "../components/Navbar";
 import Toast from "../components/Toast";
 
@@ -17,14 +16,24 @@ function MyBookingsPage() {
       const res = await api.get("/api/bookings/my-bookings");
 
       setBookings(res.data.data);
-    } catch (err) {
-      setToast({
-        type: "error",
-        message: err.response?.data?.message || "Unable to load bookings",
-      });
-    } finally {
-      setLoading(false);
-    }
+    }  catch (err) {
+  if (err.response?.status === 401) {
+    navigate("/login", {
+      state: {
+        from: "/my-bookings",
+      },
+    });
+
+    return;
+  }
+
+  setToast({
+    type: "error",
+    message: err.response?.data?.message || "Unable to load bookings",
+  });
+} finally {
+  setLoading(false);
+}
   }
 
   async function handleCancelBooking(bookingId) {
