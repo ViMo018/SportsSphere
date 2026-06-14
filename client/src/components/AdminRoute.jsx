@@ -1,30 +1,15 @@
 import { Navigate, useLocation } from "react-router-dom";
-
-function getStoredUser() {
-  const storedUser = localStorage.getItem("sportssphere_user");
-
-  if (!storedUser) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(storedUser);
-  } catch (error) {
-    localStorage.removeItem("sportssphere_user");
-    return null;
-  }
-}
+import { useAuth } from "../context/AuthContext";
 
 function AdminRoute({ children }) {
-  const token = localStorage.getItem("sportssphere_token");
-  const user = getStoredUser();
+  const { isLoggedIn, isAdmin } = useAuth();
   const location = useLocation();
 
-  if (!token) {
+  if (!isLoggedIn) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 
-  if (user?.role !== "admin") {
+  if (!isAdmin) {
     return <Navigate to="/sports/cricket" replace />;
   }
 

@@ -1,10 +1,11 @@
 import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 function ProtectedRoute({ children }) {
-  const token = localStorage.getItem("sportssphere_token");
+  const { isLoggedIn } = useAuth();
   const location = useLocation();
 
-  if (!token) {
+  if (!isLoggedIn) {
     return <Navigate to="/login" replace state={{ from: location.pathname }} />;
   }
 

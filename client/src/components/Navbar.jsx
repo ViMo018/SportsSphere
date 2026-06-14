@@ -1,28 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
-
-function getStoredUser() {
-  const storedUser = localStorage.getItem("sportssphere_user");
-
-  if (!storedUser) {
-    return null;
-  }
-
-  try {
-    return JSON.parse(storedUser);
-  } catch (error) {
-    localStorage.removeItem("sportssphere_user");
-    return null;
-  }
-}
+import { useAuth } from "../context/AuthContext";
 
 function Navbar() {
   const navigate = useNavigate();
-  const user = getStoredUser();
+  const { user, isAdmin, logout } = useAuth();
 
   function handleLogout() {
-    localStorage.removeItem("sportssphere_token");
-    localStorage.removeItem("sportssphere_user");
-
+    logout();
     navigate("/login");
   }
 
@@ -32,12 +16,13 @@ function Navbar() {
         <span className="navbar-logo">SS</span>
         <span>SportsSphere</span>
       </Link>
+
       <div className="navbar-links">
         <Link to="/sports/cricket">Sports</Link>
 
         {user && <Link to="/my-bookings">My Bookings</Link>}
 
-        {user?.role === "admin" && <Link to="/admin">Admin</Link>}
+        {isAdmin && <Link to="/admin">Admin</Link>}
 
         {user ? (
           <>

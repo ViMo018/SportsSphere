@@ -1,13 +1,20 @@
-import { useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom"; import api from "../services/api";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import api from "../services/api";
 import AuthForm from "../components/AuthForm";
 import Toast from "../components/Toast";
-function LoginPage() {
+import { useAuth } from "../context/AuthContext";
+
+function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
+
+  const { login, isLoggedIn } = useAuth();
+
   const redirectPath = location.state?.from || "/sports/cricket";
 
   const [formData, setFormData] = useState({
+    name: "",
     email: "",
     password: "",
   });
@@ -16,6 +23,12 @@ function LoginPage() {
   const [toast, setToast] = useState(null);
 
   const fields = [
+    {
+      name: "name",
+      label: "Name",
+      type: "text",
+      placeholder: "Vishva Modh",
+    },
     {
       name: "email",
       label: "Email",
@@ -26,9 +39,15 @@ function LoginPage() {
       name: "password",
       label: "Password",
       type: "password",
-      placeholder: "Enter your password",
+      placeholder: "At least 6 characters",
     },
   ];
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      navigate(redirectPath);
+    }
+  }, [isLoggedIn, navigate, redirectPath]);
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -47,23 +66,20 @@ function LoginPage() {
     try {
       setLoading(true);
 
-      const res = await api.post("/api/auth/login", formData);
+      const res = await api.post("/api/auth/register", formData);
 
-      localStorage.setItem("sportssphere_token", res.data.token);
-      localStorage.setItem("sportssphere_user", JSON.stringify(res.data.data));
+      login(res.data.data, res.data.token);
 
       setToast({
         type: "success",
-        message: res.data.message || "Login successful",
+        message: res.data.message || "Account created successfully",
       });
 
-      setTimeout(() => {
-        navigate(redirectPath);
-      }, 700);
+      navigate(redirectPath);
     } catch (err) {
       setToast({
         type: "error",
-        message: err.response?.data?.message || "Login failed",
+        message: err.response?.data?.message || "Unable to register",
       });
     } finally {
       setLoading(false);
@@ -75,19 +91,19 @@ function LoginPage() {
       <Toast toast={toast} onClose={() => setToast(null)} />
 
       <AuthForm
-        title="Welcome back"
-        buttonText="Login"
+        title="Create account"
+        buttonText="Register"
         fields={fields}
         formData={formData}
         onChange={handleChange}
         onSubmit={handleSubmit}
         loading={loading}
-        footerText="New to SportsSphere?"
-        footerLinkText="Create account"
-        onFooterClick={() => navigate("/register")}
+        footerText="Already have an account?"
+        footerLinkText="Login"
+        onFooterClick={() => navigate("/login", { state: location.state })}
       />
     </>
   );
 }
 
-export default LoginPage;
+export default RegisterPage;
